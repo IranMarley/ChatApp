@@ -1,0 +1,196 @@
+﻿@model IEnumerable<ChatApp.Application.ViewModels.UserViewModel>
+
+@{
+    ViewBag.Title = "Chat";
+}
+
+@using (Html.BeginForm())
+{
+    <div class="container">
+
+        <div class="row">
+            <div class="col-md-4 col-md-offset-1">
+
+                <h4>Friends list</h4>
+
+                <ul class="list-group">
+                    @{
+                        var i = 0;
+
+                        foreach (var item in Model)
+                        {
+                            var active = i == 0 ? "isActive" : "";
+
+                            <li class="list-group-item @active">
+                                <a href="" class="changeFriend" id="@item.Email">
+                                    @item.Email
+                                </a>
+
+                                <img class="display-none" src="https://upload.wikimedia.org/wikipedia/commons/thumb/0/0e/Ski_trail_rating_symbol-green_circle.svg/600px-Ski_trail_rating_symbol-green_circle.svg.png" width="15" style="float: right" />
+                            </li>
+
+                            i++;
+                        }
+                    }
+                </ul>
+
+            </div>
+            <div class="col-md-4">
+
+                <div class="row">
+                    <div class="col-md-11">
+                        <h4>Message</h4>
+                        <div class="input-group">
+
+                            <input type="text" name="message" id="message" class="form-control">
+                            <span class="input-group-btn">
+                                <button class="btn btn-default" type="button" id="btnSend">Send</button>
+                            </span>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+            <br />
+
+            <div class="col-md-10 col-md-offset-1">
+
+                @{
+                    i = 0;
+
+                    foreach (var item in Model)
+                    {
+                        var display = i > 0 ? "display-none" : "";
+
+                        <div class="panel panel-info messages @display" id="@item.Email">
+                            <div class="panel-heading">
+                                <div class="panel-title">
+                                    Messages: <span id="friendName">@item.Email</span>
+                                </div>
+                                <div class="panel-footer" style="height:400px; overflow-y: scroll">
+                                    <div class="divmsg">
+
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        i++;
+                    }
+                }
+            </div>
+        </div>
+    </div>
+
+}
+
+@section scripts {
+
+
+
+
+    <script type="text/javascript">
+    $(document).ready(function () {
+
+        $("#btnSend").click(function () {
+
+            var message = $("#message").val();
+
+            if (message == "")
+            return false;
+
+
+            var friend = $(".messages").not(".display-none").attr("id").trim();
+            var data = $(".messages[id='" + friend + "'] .divmsg").html();
+            $(".messages[id='" + friend + "'] .divmsg").html(data + "<span class='text-success'>" + getDate() + " - Me: </span><br>" + message + "<br><br>");
+
+            $(".panel-footer").each(function () {
+                $(this).scrollTop = 2000;
+            });
+
+            $("#message").val("");
+
+            $.ajax({
+                type: "POST",
+                contentType: "application/json; charset=utf-8",
+                data: '{"message":"' + message + '","friend":"'+friend+'"}',
+                url: "@Url.Action("SendMsg")",
+                dataType: "json",
+                success: function (response) {
+
+                },
+                error: function (response) {
+
+                }
+            });
+
+        });
+
+        $(".changeFriend").click(function (e) {
+            e.preventDefault()
+            var userName = $(this).text().trim();
+            $(".messages[id!='" + userName + "']").addClass("display-none");
+            $(".messages[id='" + userName + "']").removeClass("display-none");
+
+            $(".isActive").removeClass("isActive");
+            $(this).parent().addClass("isActive");
+
+            $(this).parent().find("img").addClass("display-none");
+
+        });
+
+    });
+
+        setInterval(function () {
+            $.ajax({
+                type: "POST",
+                contentType: "application/json; charset=utf-8",
+                data: '{}',
+                url: "@Url.Action("Receive")",
+                dataType: "json",
+                success: function (response) {
+
+                    if (response != null && response != undefined) {
+                        debugger;
+
+                        if (response.includes('&') > 0) {
+                            var friend = response.substr(0, response.indexOf('&'))
+                            var message = response.substr(response.indexOf('&') + 1)
+
+                            if ($(".messages[id='" + friend + "'] .divmsg").length > -1) {
+                                var data = $(".messages[id='" + friend + "'] .divmsg").html();
+                                $(".messages[id='" + friend + "'] .divmsg").html(data + "<span class='text-error'>" + getDate() + " - " + friend + ": </span><br>" + message + "<br><br>");
+
+
+                                if ($(".messages[id='" + friend + "']").hasClass("display-none")) {
+                                    $(".changeFriend[id='" + friend + "']").parent().find("img").removeClass("display-none");
+                                }
+                            }
+                        }
+                        else if (response.includes('#') > 0) {
+
+                            var friend = response.substr(0, response.indexOf('#'))
+                            var message = response.substr(response.indexOf('#') + 1)
+
+                            $(".divmsg").not(".display-none").append("<span class='text-error'>" + getDate() + " - Bot: </span><br>" + message + "<br><br>")
+
+                        }
+                    }
+
+                    
+                },
+                error: function (response) {
+
+                }
+            });
+        }, 5000);
+
+        function getDate() {
+            var now = new Date();
+            return (now.getMonth() + 1) + "/" + now.getDate() + "/" + now.getFullYear() + " " + ("0" + now.getHours()).slice(-2) + ":" + ("0" + now.getMinutes()).slice(-2);
+
+        }
+
+    </script>
+
+}
