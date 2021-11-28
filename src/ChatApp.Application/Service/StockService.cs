@@ -13,15 +13,15 @@ namespace ChatApp.Application.Service
 
         private string link = $"https://stooq.com/q/l/?s=symbol&f=sd2t2ohlcv&h&e=csv";
 
-        //private readonly IRequestService _requestService;
+        private readonly IRequestService _requestService;
 
         #endregion
 
         #region Constructors
 
-        public StockService(/*IRequestService requestService*/)
+        public StockService(IRequestService requestService)
         {
-            //_requestService = requestService;
+            _requestService = requestService;
         }
 
         #endregion
@@ -37,12 +37,9 @@ namespace ChatApp.Application.Service
             {
                 var symbol = message.Replace("/stock=", "").ToUpper();
 
-                var client = new RestClient(link.Replace("symbol", symbol));
+                var result = _requestService.SendRequest(link.Replace("symbol", symbol), null, Method.GET);
 
-                var request = new RestRequest(Method.GET);
-                IRestResponse response = client.Execute(request);
-
-                foreach (var line in response.Content.Split(new string[] { "\r\n" }, StringSplitOptions.RemoveEmptyEntries))
+                foreach (var line in result.Split(new string[] { "\r\n" }, StringSplitOptions.RemoveEmptyEntries))
                 {
                     List<string> columns = line.Split(',').ToList<string>();
 
@@ -51,14 +48,14 @@ namespace ChatApp.Application.Service
                         var stock = new StockViewModel
                         {
                             Symbol = columns[0],
-                            Open = columns[2],
-                            High = columns[3],
-                            Low = columns[4],
-                            Close = columns[5],
-                            Volume = columns[6]
+                            Open = columns[3],
+                            High = columns[4],
+                            Low = columns[5],
+                            Close = columns[6],
+                            Volume = columns[7]
                         };                          
 
-                        if (stock.Close != "N/D")
+                        if (!stock.Close.Equals("N/D"))
                             msg = $"{symbol} quote is ${stock.Close} per share.";
                     }
                 }
