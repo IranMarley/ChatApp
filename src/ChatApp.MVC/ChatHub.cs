@@ -53,24 +53,25 @@ namespace ChatApp.MVC
 
         public void SendMessageToAll(string userName, string message)
         {
+            message = message.Trim();
             var date = DateTime.Now.ToString("dd/MM/yyyy HH:mm");
 
             // store last 50 messages in cache
-            AddMessageinCache(userName, message);
+            AddMessageinCache(userName, message, date);
 
             // Broad cast message
             Clients.All.messageReceived(userName, message, date);
 
             if (message.StartsWith("/"))
             {
-                var result = _stockService.GetQuote(message).First();
-                Clients.All.messageReceived(result.Key, result.Value, date);
+                var result = _stockService.GetQuote(message);
+                Clients.All.messageReceived(result.UserName, result.Message, date);
             }
         }
 
         public void SendPrivateMessage(string toUserId, string message)
         {
-
+            message = message.Trim();
             string fromUserId = Context.ConnectionId;
 
             var toUser = ConnectedUsers.FirstOrDefault(x => x.ConnectionId == toUserId);
@@ -107,9 +108,9 @@ namespace ChatApp.MVC
 
         #region private Messages
 
-        private void AddMessageinCache(string userName, string message)
+        private void AddMessageinCache(string userName, string message, string date)
         {
-            CurrentMessage.Add(new MessageDetailViewModel { UserName = userName, Message = message });
+            CurrentMessage.Add(new MessageDetailViewModel { UserName = userName, Message = message, Date = date });
 
             if (CurrentMessage.Count > 50)
                 CurrentMessage.RemoveAt(0);
