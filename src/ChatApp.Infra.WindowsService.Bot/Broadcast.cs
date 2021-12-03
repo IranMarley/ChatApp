@@ -61,6 +61,9 @@ namespace ChatApp.Infra.WindowsService.Bot
             if (!string.IsNullOrEmpty(message) && message.Contains("/"))
             {
                 var quote = _stockService.GetQuote(message);
+
+                _rabbitMQService.send(con, quote.Message, "all");
+
                 hub.Invoke("SendMessageToAll", quote.UserName, quote.Message).Wait();
             }
         }
