@@ -2,43 +2,50 @@
 using RabbitMQ.Client;
 using RabbitMQ.Client.Events;
 using System;
+using System.Security.Authentication;
 using System.Text;
 
-namespace ChatApp.Application.Services
+namespace ChatApp.Application.Service
 {
     public class RabbitMQService : IRabbitMQService
     {
         public IConnection GetConnection()
         {
             ConnectionFactory factory = new ConnectionFactory();
-            factory.UserName = "guest";
-            factory.Password = "guest";
-            factory.Port = 5672;
-            factory.HostName = "localhost";
+            factory.UserName = "admin";
+            factory.Password = "TvvejtLqCylgb3fxPklNAkylomc4a4a5";
+            factory.Port = 5671;
+            factory.HostName = "96xvcy.stackhero-network.com";
             factory.VirtualHost = "/";
-
+            factory.Ssl = new SslOption
+            {
+                ServerName = "96xvcy.stackhero-network.com",
+                Enabled = true,
+                Version = SslProtocols.Tls12
+            };
+           
             return factory.CreateConnection();
         }
-        public bool send(IConnection con, string message, string friendqueue)
+
+        public bool send(IConnection con, string message, string queue)
         {
             try
             {
                 IModel channel = con.CreateModel();
                 channel.ExchangeDeclare("messageexchange", ExchangeType.Direct);
-                channel.QueueDeclare(friendqueue, true, false, false, null);
-                channel.QueueBind(friendqueue, "messageexchange", friendqueue, null);
+                channel.QueueDeclare(queue, true, false, false, null);
+                channel.QueueBind(queue, "messageexchange", queue, null);
                 var msg = Encoding.UTF8.GetBytes(message);
-                channel.BasicPublish("messageexchange", friendqueue, null, msg);
+                channel.BasicPublish("messageexchange", queue, null, msg);
 
             }
-            catch (Exception)
+            catch (Exception) 
             {
-
-
             }
-            return true;
 
+            return true;
         }
+
         public string receive(IConnection con, string myqueue)
         {
             try
@@ -56,7 +63,6 @@ namespace ChatApp.Application.Services
             catch (Exception)
             {
                 return null;
-
             }
         }
     }

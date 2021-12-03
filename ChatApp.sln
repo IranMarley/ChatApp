@@ -31,6 +31,10 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "0 - Tests", "0 - Tests", "{
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ChatApp.Tests", "src\ChatApp.Tests\ChatApp.Tests.csproj", "{C414289E-15BD-49B9-9C5A-45AC93411572}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "4.3 - WindowsService", "4.3 - WindowsService", "{FD69599B-AA8E-47BB-BFA3-7F4BE08C504A}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ChatApp.Infra.WindowsService.Bot", "src\ChatApp.Infra.WindowsService.Bot\ChatApp.Infra.WindowsService.Bot.csproj", "{C096B449-D38D-4A16-9015-0A0DD0C95911}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -65,6 +69,10 @@ Global
 		{C414289E-15BD-49B9-9C5A-45AC93411572}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{C414289E-15BD-49B9-9C5A-45AC93411572}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{C414289E-15BD-49B9-9C5A-45AC93411572}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C096B449-D38D-4A16-9015-0A0DD0C95911}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C096B449-D38D-4A16-9015-0A0DD0C95911}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C096B449-D38D-4A16-9015-0A0DD0C95911}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C096B449-D38D-4A16-9015-0A0DD0C95911}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -79,6 +87,8 @@ Global
 		{7452498E-395C-4BEC-87AF-1B2B3AA8BD10} = {A7D2FB6D-E397-4846-8E93-715AA638AE6F}
 		{55CB88C7-22F5-4580-86C1-33E08D5D756A} = {37CB9D75-58ED-432B-8255-75A67AAA93DA}
 		{C414289E-15BD-49B9-9C5A-45AC93411572} = {A020CD27-673E-4109-B30F-A194664872E7}
+		{FD69599B-AA8E-47BB-BFA3-7F4BE08C504A} = {4F8867E2-4521-4E1C-B57F-333FFBB09402}
+		{C096B449-D38D-4A16-9015-0A0DD0C95911} = {FD69599B-AA8E-47BB-BFA3-7F4BE08C504A}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {82366BBD-3CB7-46F9-B325-94BC7BE0016A}
