@@ -72,7 +72,7 @@ namespace ChatApp.Application.Service
             {
                 UserName = "Bot",
                 Message = msg,
-                Date = DateTime.Now.ToString("dd/MM/yyyy")
+                Date = DateTime.Now.ToString("dd/MM/yyyy HH:mm")
             };
         }
 
