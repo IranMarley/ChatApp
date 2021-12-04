@@ -88,7 +88,7 @@
                 if (msg.length > 0) {
 
                     var userName = $('#hdUserName').val();
-                    chatHub.server.sendMessageToAll(userName, msg);
+                    chatHub.server.sendMessageToQueue(userName, msg);
                     $("#txtMessage").val('');
                 }
             });

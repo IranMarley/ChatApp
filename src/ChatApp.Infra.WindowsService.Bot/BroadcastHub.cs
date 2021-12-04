@@ -46,21 +46,19 @@ namespace ChatApp.Infra.WindowsService.Bot
             }
         }
 
-        public void SendMessageToAll(string userName, string message)
+        public void SendMessageToQueue(string userName, string message)
         {
-            message = message.Trim();
-            var date = DateTime.Now.ToString("dd/MM/yyyy HH:mm");
+            var con = _rabbitMQService.GetConnection();
+            _rabbitMQService.send(con, new MessageDetailViewModel { UserName = userName, Message = message, Date = DateTime.Now.ToString("dd/MM/yyyy HH:mm") }, "all");
+        }
 
+        public void SendMessageToAll(string userName, string message, string date)
+        {
             // store last 50 messages in cache
             AddMessageinCache(userName, message, date);
 
             // Broad cast message
             Clients.All.messageReceived(userName, message, date);
-
-            var con = _rabbitMQService.GetConnection();
-
-            userName = message.StartsWith("/") ? "all" : userName;
-            _rabbitMQService.send(con, message, userName);
         }
 
         public void SendPrivateMessage(string toUserId, string message)

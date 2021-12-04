@@ -1,4 +1,6 @@
 ﻿using ChatApp.Application.Interface;
+using ChatApp.Application.ViewModels;
+using Newtonsoft.Json;
 using RabbitMQ.Client;
 using RabbitMQ.Client.Events;
 using System;
@@ -27,7 +29,7 @@ namespace ChatApp.Application.Service
             return factory.CreateConnection();
         }
 
-        public bool send(IConnection con, string message, string queue)
+        public bool send(IConnection con, MessageDetailViewModel message, string queue)
         {
             try
             {
@@ -35,9 +37,8 @@ namespace ChatApp.Application.Service
                 channel.ExchangeDeclare("messageexchange", ExchangeType.Direct);
                 channel.QueueDeclare(queue, true, false, false, null);
                 channel.QueueBind(queue, "messageexchange", queue, null);
-                var msg = Encoding.UTF8.GetBytes(message);
+                var msg = Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(message));
                 channel.BasicPublish("messageexchange", queue, null, msg);
-
             }
             catch (Exception) 
             {

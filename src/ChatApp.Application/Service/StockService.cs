@@ -71,7 +71,8 @@ namespace ChatApp.Application.Service
             return new MessageDetailViewModel
             {
                 UserName = "Bot",
-                Message = msg
+                Message = msg,
+                Date = DateTime.Now.ToString("dd/MM/yyyy")
             };
         }
 

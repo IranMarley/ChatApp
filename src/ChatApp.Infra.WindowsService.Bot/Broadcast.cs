@@ -4,6 +4,12 @@ using Microsoft.Owin.Hosting;
 using System.Timers;
 using Microsoft.AspNet.SignalR.Client;
 using ChatApp.Application.Service;
+using RabbitMQ.Client.Events;
+using System.Text;
+using RabbitMQ.Client;
+using Newtonsoft.Json;
+using ChatApp.Application.ViewModels;
+
 
 namespace ChatApp.Infra.WindowsService.Bot
 {
@@ -21,7 +27,7 @@ namespace ChatApp.Infra.WindowsService.Bot
         #endregion
 
         #region Constructors
-        
+
         public Broadcast()
         {
             _rabbitMQService = new RabbitMQService();
@@ -51,21 +57,7 @@ namespace ChatApp.Infra.WindowsService.Bot
 
         private void Timer_Elapsed(object sender, ElapsedEventArgs e)
         {
-            var connection = new HubConnection(url);
-            var hub = connection.CreateHubProxy("BroadcastHub");
-            connection.Start().Wait();
-
-            var con = _rabbitMQService.GetConnection();
-            var message = _rabbitMQService.receive(con, "all");
-
-            if (!string.IsNullOrEmpty(message) && message.Contains("/"))
-            {
-                var quote = _stockService.GetQuote(message);
-
-                _rabbitMQService.send(con, quote.Message, "all");
-
-                hub.Invoke("SendMessageToAll", quote.UserName, quote.Message).Wait();
-            }
+           
         }
 
         protected override void OnStop()
@@ -79,7 +71,46 @@ namespace ChatApp.Infra.WindowsService.Bot
         {
             WebApp.Start(url);
 
-            _timer = new Timer(1000) { AutoReset = true };
+            #region Receive messages
+
+            var connection = new HubConnection(url);
+            var hub = connection.CreateHubProxy("BroadcastHub");
+            connection.Start().Wait();
+
+            var con = _rabbitMQService.GetConnection();
+
+            var channel = con.CreateModel();
+
+            channel.QueueDeclare(queue: "all",
+                                 durable: true,
+                                 exclusive: false,
+                                 autoDelete: false,
+                                 arguments: null);
+
+            var consumer = new EventingBasicConsumer(channel);
+
+            consumer.Received += (model, ea) =>
+            {
+                var body = ea.Body;
+                var msg = JsonConvert.DeserializeObject<MessageDetailViewModel>(Encoding.UTF8.GetString(body));
+
+                hub.Invoke("SendMessageToAll", msg.UserName, msg.Message, msg.Date).Wait();
+
+                if (!string.IsNullOrEmpty(msg.Message) && msg.Message.Contains("/"))
+                {
+                    var quote = _stockService.GetQuote(msg.Message);
+                    hub.Invoke("SendMessageToAll", quote.UserName, quote.Message, quote.Date).Wait();
+                }
+            };
+
+            channel.BasicConsume(queue: "all",
+                                 autoAck: true,
+                                 consumer: consumer);
+
+
+            #endregion
+
+            _timer = new Timer(1000 * 360) { AutoReset = true };
             _timer.Elapsed += Timer_Elapsed;
             _timer.Start();
         }
