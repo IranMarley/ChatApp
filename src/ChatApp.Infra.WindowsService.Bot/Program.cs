@@ -1,4 +1,6 @@
-﻿namespace ChatApp.Infra.WindowsService.Bot
+﻿using System.ServiceProcess;
+
+namespace ChatApp.Infra.WindowsService.Bot
 {
     static class Program
     {
