@@ -9,7 +9,7 @@ using Microsoft.Owin.Security;
 
 namespace ChatApp.MVC.Controllers
 {
-    [System.Web.Mvc.Authorize]
+    [Authorize]
     public class AccountController : Controller
     {
         private ApplicationSignInManager _signInManager;

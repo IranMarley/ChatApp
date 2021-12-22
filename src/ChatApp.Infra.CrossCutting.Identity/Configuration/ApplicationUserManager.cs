@@ -11,14 +11,14 @@ namespace ChatApp.Infra.CrossCutting.Identity.Configuration
         public ApplicationUserManager(IUserStore<ApplicationUser> store)
             : base(store)
         {
-            // Configurando validator para nome de user
+            // Setting validator for username
             UserValidator = new UserValidator<ApplicationUser>(this)
             {
                 AllowOnlyAlphanumericUserNames = false,
                 RequireUniqueEmail = true
             };
 
-            // Logica de validação e complexidade de senha
+            // Validation Logic and Password Complexity
             PasswordValidator = new PasswordValidator
             {
                 RequiredLength = 6,
@@ -28,31 +28,31 @@ namespace ChatApp.Infra.CrossCutting.Identity.Configuration
                 RequireUppercase = false,
             };
 
-            // Configuração de Lockout
+            // Lockout configuration
             UserLockoutEnabledByDefault = true;
             DefaultAccountLockoutTimeSpan = TimeSpan.FromMinutes(5);
             MaxFailedAccessAttemptsBeforeLockout = 5;
 
             // Providers de Two Factor Autentication
-            RegisterTwoFactorProvider("Código via SMS", new PhoneNumberTokenProvider<ApplicationUser>
+            RegisterTwoFactorProvider("SMS Code", new PhoneNumberTokenProvider<ApplicationUser>
             {
-                MessageFormat = "Seu código de segurança é: {0}"
+                MessageFormat = "Your security code is: {0}"
             });
 
-            RegisterTwoFactorProvider("Código via E-mail", new EmailTokenProvider<ApplicationUser>
+            RegisterTwoFactorProvider("E-mail Code", new EmailTokenProvider<ApplicationUser>
             {
-                Subject = "Código de Segurança",
-                BodyFormat = "Seu código de segurança é: {0}"
+                Subject = "Security code",
+                BodyFormat = "Your security code is: {0}"
             });
 
-            // Definindo a classe de serviço de e-mail
+            // Defining the Email Service Class
             EmailService = new EmailService();
 
-            // Definindo a classe de serviço de SMS
+            // Defining the SMS class of service
             SmsService = new SmsService();
 
-            var provider = new DpapiDataProtectionProvider("Eduardo");
-            var dataProtector = provider.Create("ASP.NET Identity");
+            var provider = new DpapiDataProtectionProvider("Iran");
+            var dataProtector = provider.Create("ChatApp");
 
             UserTokenProvider = new DataProtectorTokenProvider<ApplicationUser>(dataProtector);
 

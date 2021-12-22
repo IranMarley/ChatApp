@@ -94,12 +94,13 @@ namespace ChatApp.Infra.WindowsService.Bot
                 var body = ea.Body;
                 var msg = JsonConvert.DeserializeObject<MessageDetailViewModel>(Encoding.UTF8.GetString(body));
 
-                hub.Invoke("SendMessageToAll", msg.UserName, msg.Message, msg.Date).Wait();
+                //hub.Invoke("SendMessageToAll", msg.UserName, msg.Message, msg.Date).Wait();
 
                 if (!string.IsNullOrEmpty(msg.Message) && msg.Message.Contains("/"))
                 {
                     var quote = _stockService.GetQuote(msg.Message);
-                    _rabbitMQService.send(con, quote, "all");
+                    //_rabbitMQService.send(con, quote, "all");
+                    hub.Invoke("SendMessageToAll", quote.UserName, quote.Message, quote.Date).Wait();
                 }
             };
 

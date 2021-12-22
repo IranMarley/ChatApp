@@ -48,8 +48,16 @@ namespace ChatApp.Infra.WindowsService.Bot
 
         public void SendMessageToQueue(string userName, string message)
         {
-            var con = _rabbitMQService.GetConnection();
-            _rabbitMQService.send(con, new MessageDetailViewModel { UserName = userName, Message = message, Date = DateTime.Now.ToString("dd/MM/yyyy HH:mm") }, "all");
+            var date = DateTime.Now.ToString("dd/MM/yyyy HH:mm");
+
+            SendMessageToAll(userName, message, date);
+
+            if (message.StartsWith("/"))
+            {
+                var con = _rabbitMQService.GetConnection();
+                _rabbitMQService.send(con, new MessageDetailViewModel { UserName = userName, Message = message, Date = date }, "all");
+            }
+
         }
 
         public void SendMessageToAll(string userName, string message, string date)
